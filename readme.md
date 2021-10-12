@@ -1,0 +1,1 @@
+### Simple checker js game
