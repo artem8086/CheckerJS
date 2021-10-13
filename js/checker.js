@@ -1,9 +1,14 @@
 /**
- * @typedef MoveOptions
+ * @typedef MoveOption
  * @type {Object}
  * @param {Number} moveX
  * @param {Number} moveY
  * @param {Number} maxSteps
+ */
+
+/**
+ * @typedef Positions
+ * @type {Array<{x: Number, y: Number}>}
  */
 
 /**
@@ -12,102 +17,116 @@
  * @property {String} name
  * @property {String} cssClass
  * @property {Number} playerId
- * @property {FigureOption} bonusOption
- * @property {boolean} checkBackwardBeat
- * @property {Array<MoveOptions>} moves
+ * @property {Array<MoveOption>} moves
+ * @property {Array<MoveOption>} beats
+ * @property {Positions} bonusArea
+ * @property {FigureOption} [bonusFigure]
+ */
+
+/**
+ * @typedef PlayerOption
+ * @type {Object}
+ * @property {Number} id
+ * @property {String} name
+ * @property {Positions} startPositions
+ * @property {FigureOption} baseFigure
  */
 
 /**
  * @typedef CheckersOption
  * @type {Object}
- * @property {boolean} whiteIsFirst
+ * @property {Number} firstPlayerId
  * @property {Number} fieldWidth
  * @property {Number} fieldHeight
- * @property {Array<{x: Number, y: Number}>} blackBonusCells
- * @property {Array<{x: Number, y: Number}>} whiteBonusCells
- * @property {Array<{x: Number, y: Number}>} blackStartPositions
- * @property {Array<{x: Number, y: Number}>} whiteStartPositions
- * @property {FigureOption} blackCheckOption
- * @property {FigureOption} whiteCheckOption
- * @property {FigureOption} blackKingCheckOption
- * @property {FigureOption} whiteKingCheckOption
- * @property {boolean} isBeatBackAllowed
- * @property {boolean} isCancelBeatAllowed
+ * @property {Number} stepDelay
+ * @property {boolean} isBeatNecessarily
+ * @property {Array<PlayerOption>} players
  */
+
+const allDirections = [
+    { moveX: -1, moveY:  1, maxSteps: 1 },
+    { moveX:  1, moveY:  1, maxSteps: 1 },
+    { moveX: -1, moveY: -1, maxSteps: 1 },
+    { moveX:  1, moveY: -1, maxSteps: 1 }
+]
+
+const allDirectionsNoLimit = [
+    { moveX: -1, moveY:  1, maxSteps: 8 },
+    { moveX:  1, moveY:  1, maxSteps: 8 },
+    { moveX: -1, moveY: -1, maxSteps: 8 },
+    { moveX:  1, moveY: -1, maxSteps: 8 }
+]
 
 /**
  * @type {CheckersOption}
  */
 const ClassicCheckerOption = {
-    whiteIsFirst: true,
+    firstPlayerId: 1,
     fieldWidth: 10,
     fieldHeight: 10,
-    blackBonusCells: Array(10).fill(0).map((_, i) => ({x: i, y: 9})),
-    whiteBonusCells: Array(10).fill(0).map((_, i) => ({x: i, y: 0})),
-    blackStartPositions: [
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 0})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 1})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 2})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 ,    y: 3}))
-    ],
-    whiteStartPositions: [
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 6})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 7})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 8})),
-        ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 9}))
-    ],
-    blackCheckOption: {
-        name: 'Чёрная шашка',
-        cssClass: 'check black',
-        playerId: 0,
-        checkBackwardBeat: true,
-        moves: [
-            { moveX: -1, moveY:  1, maxSteps: 1 },
-            { moveX:  1, moveY:  1, maxSteps: 1 }
-        ]
-    },
-    whiteCheckOption: {
-        name: 'Белая шашка',
-        cssClass: 'check white',
-        playerId: 1,
-        checkBackwardBeat: true,
-        moves: [
-            { moveX: -1, moveY: -1, maxSteps: 1 },
-            { moveX:  1, moveY: -1, maxSteps: 1 }
-        ]
-    },
-    blackKingCheckOption: {
-        name: 'Чёрная дамка',
-        cssClass: 'check black king',
-        playerId: 0,
-        checkBackwardBeat: false,
-        moves: [
-            { moveX: -1, moveY: -1, maxSteps: 8 },
-            { moveX:  1, moveY: -1, maxSteps: 8 },
-            { moveX: -1, moveY:  1, maxSteps: 8 },
-            { moveX:  1, moveY:  1, maxSteps: 8 }
-        ]
-    },
-    whiteKingCheckOption: {
-        name: 'Белая дамка',
-        cssClass: 'check white king',
-        playerId: 1,
-        checkBackwardBeat: false,
-        moves: [
-            { moveX: -1, moveY: -1, maxSteps: 8 },
-            { moveX:  1, moveY: -1, maxSteps: 8 },
-            { moveX: -1, moveY:  1, maxSteps: 8 },
-            { moveX:  1, moveY:  1, maxSteps: 8 }
-        ]
-    },
-    isBeatBackAllowed: true,
-    isBeatNecessarily: false
+    stepDelay: 100,
+    isBeatNecessarily: false,
+    players: [
+        {
+            id: 0,
+            name: 'Чёрный игрок',
+            startPositions: [
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 0})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 1})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 2})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 ,    y: 3}))
+            ],
+            baseFigure: {
+                name: 'Чёрная шашка',
+                cssClass: 'check black',
+                playerId: 0,
+                moves: [
+                    { moveX: -1, moveY:  1, maxSteps: 1 },
+                    { moveX:  1, moveY:  1, maxSteps: 1 }
+                ],
+                beats: allDirections,
+                bonusArea: Array(10).fill(0).map((_, i) => ({x: i, y: 9})),
+                bonusFigure: {
+                    name: 'Чёрная дамка',
+                    cssClass: 'check black king',
+                    playerId: 0,
+                    checkBackwardBeat: false,
+                    moves: allDirectionsNoLimit,
+                    beats: allDirectionsNoLimit
+                }
+            }
+        },
+        {
+            id: 1,
+            name: 'Белый игрок',
+            startPositions: [
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 6})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 7})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 8})),
+                ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 9}))
+            ],
+            baseFigure: {
+                name: 'Белая шашка',
+                cssClass: 'check white',
+                playerId: 1,
+                moves: [
+                    { moveX: -1, moveY: -1, maxSteps: 1 },
+                    { moveX:  1, moveY: -1, maxSteps: 1 }
+                ],
+                beats: allDirections,
+                bonusArea: Array(10).fill(0).map((_, i) => ({x: i, y: 0})),
+                bonusFigure: {
+                    name: 'Белая дамка',
+                    cssClass: 'check white king',
+                    playerId: 1,
+                    checkBackwardBeat: false,
+                    moves: allDirectionsNoLimit,
+                    beats: allDirectionsNoLimit
+                }
+            }
+        }
+    ]
 }
-
-ClassicCheckerOption.blackCheckOption.bonusOption = ClassicCheckerOption.blackKingCheckOption
-ClassicCheckerOption.blackKingCheckOption.bonusOption = ClassicCheckerOption.blackKingCheckOption
-ClassicCheckerOption.whiteCheckOption.bonusOption = ClassicCheckerOption.whiteKingCheckOption
-ClassicCheckerOption.whiteKingCheckOption.bonusOption = ClassicCheckerOption.whiteKingCheckOption
 
 /**
  * @type {Checkers}
@@ -133,31 +152,28 @@ const CheckersGame = (() => {
     const blockCell = {type: cellType.block}
 
     /**
-     * @property {Checkers} game
      * @property {Number} x
      * @property {Number} y
      * @property {boolean} canMove
      * @property {boolean} isActive
      * @property {FigureOption} option
      * @property {HTMLElement} element
+     * @property {Array<{x: Number, y: Number}>} [possibleMoves]
+     * @property {Array<{x: Number, y: Number, beatFigure: Figure}>} [possibleBeats]
      */
     class Figure {
 
         /**
-         * @param {Checkers} game
          * @param {FigureOption} option
-         * @param {HTMLElement} field
          */
-        constructor(game, option) {
-            this.game = game
+        constructor(option) {
             this.x = 0
             this.y = 0
             this.canMove = false
             this.isActive = true
             this.option = option
             this.element = document.createElement('span')
-            this.element.addEventListener('click', this.select.bind(this))
-            game.field.appendChild(this.element)
+            this.element.figure = this
         }
 
         /**
@@ -180,26 +196,6 @@ const CheckersGame = (() => {
             return this
         }
 
-        select() {
-            if (this.canMove) {
-                this.game.figures.forEach(figure => figure.element.classList.remove('select'))
-                this.element.classList.add('select')
-                this.game.hideAll()
-                this.possibleMoves.forEach(move => {
-                    const elem = document.createElement('span')
-                    this.game.field.appendChild(elem)
-                    elem.className = `move x${move.x} y${move.y}${move.beatFigure ? ' beat' : ''}`
-                    elem.addEventListener('click', () => {
-                        if (move.beatFigure) {
-                            this.game.beatFigure(this, move.beatFigure, move.x, move.y)
-                        } else {
-                            this.game.moveFigure(this, move.x, move.y)
-                        }
-                    })
-                })
-            }
-        }
-
         /**
          * @return {Figure}
          */
@@ -210,66 +206,16 @@ const CheckersGame = (() => {
         }
 
         /**
-         * @param {Checkers} game
-         * @return {Array<{x: Number, y: Number} | {x: Number, y: Number, beatFigure: Figure}>}
+         * @return {Figure}
          */
-        findAllPossibleMoves(game) {
-            // TODO: Отрефакторить
-            let possibleMoves = []
+        checkBonusPosition() {
+            if (this.option.bonusFigure &&
+                this.option.bonusArea.findIndex(pos => pos.x === this.x && pos.y === this.y) !== -1) {
 
-            for (let move of this.option.moves) {
-                let x = this.x
-                let y = this.y
-
-                for (let step = 0; step < move.maxSteps; step++) {
-                    x += move.moveX
-                    y += move.moveY
-
-                    const nextCell = game.findInCell(x, y)
-                    if (nextCell.type === cellType.figure && nextCell.option.playerId !== game.currentPlayer.id) {
-                        x += move.moveX
-                        y += move.moveY
-                        const cellAfter = game.findInCell(x, y)
-                        if (cellAfter.type === cellType.empty) {
-                            possibleMoves.push({x, y, beatFigure: nextCell})
-                        }
-                        break
-                    } else if (nextCell.type === cellType.empty) {
-                        possibleMoves.push({x, y})
-                    } else {
-                        break
-                    }
-                }
+                this.option = this.option.bonusFigure
+                this.update()
             }
-
-            if (this.option.checkBackwardBeat && game.options.isBeatBackAllowed) {
-                for (let move of this.option.moves) {
-                    let x = this.x
-                    let y = this.y
-
-                    for (let step = 0; step < move.maxSteps; step++) {
-                        x -= move.moveX
-                        y -= move.moveY
-
-                        const nextCell = game.findInCell(x, y)
-                        if (nextCell.type === cellType.figure && nextCell.option.playerId !== game.currentPlayer.id) {
-                            x -= move.moveX
-                            y -= move.moveY
-                            const cellAfter = game.findInCell(x, y)
-                            if (cellAfter.type === cellType.empty) {
-                                possibleMoves.push({x, y, beatFigure: nextCell})
-                            }
-                            break
-                        } else if (nextCell.type !== cellType.empty) {
-                            break
-                        }
-                    }
-                }
-            }
-
-            this.possibleMoves = possibleMoves
-
-            return possibleMoves
+            return this
         }
 
         /**
@@ -281,38 +227,24 @@ const CheckersGame = (() => {
     }
 
     /**
-     * @typedef BonusPositions
-     * @type {Array<{x: Number, y: Number}>}
-     */
-
-    /**
      * @property {Checkers} game
      * @property {Number} id
      * @property {String} name
-     * @property {BonusPositions} bonusPositions
-     * @property {FigureOption} bonusCheckOption
+     * @property {Positions} startPosition
+     * @property {FigureOption} baseFigure
      */
     class Player {
 
         /**
          * @param {Checkers} game
-         * @param {Number} id
-         * @param {String} name
-         * @param {BonusPositions} bonusPositions
+         * @param {PlayerOption} option
          */
-        constructor(game, id, name, bonusPositions) {
+        constructor(game, option) {
             this.game = game
-            this.id = id
-            this.name = name
-            this.bonusPositions = bonusPositions
-        }
-
-        /**
-         * @param {Figure} figure
-         * @return {Boolean}
-         */
-        inBonusPosition(figure) {
-            return this.bonusPositions.findIndex(pos => pos.x === figure.x && pos.y === figure.y) !== -1
+            this.id = option.id
+            this.name = option.name
+            this.startPosition = option.startPositions
+            this.baseFigure = option.baseFigure
         }
 
         /**
@@ -323,9 +255,26 @@ const CheckersGame = (() => {
             const figures = this.game.findPlayerFigures(this.id)
 
             for (let figure of figures) {
-                figure.canMove = figure.findAllPossibleMoves(this.game).length !== 0
+                this.game.findAllPossibleMoves(figure)
+                this.game.findAllPossibleBeats(figure)
+                figure.canMove = figure.possibleMoves.length !== 0 || figure.possibleBeats.length !== 0
                 figure.update()
             }
+            return this
+        }
+
+        /**
+         * @param {Figure} figure
+         * @return {Player}
+         */
+        beatFigure(figure) {
+            this.game.resetFigures()
+            figure.canMove = true
+            figure.update()
+            if (!this.game.options.isBeatNecessarily) {
+                figure.possibleMoves = [{x: figure.x, y: figure.y}]
+            }
+            this.game.selectFigure(figure)
             return this
         }
     }
@@ -348,7 +297,7 @@ const CheckersGame = (() => {
     /**
      * @property {CheckersOption} options
      * @property {HTMLElement} field
-     * @property {Number} playerSteps
+     * @property {Number} stepsCount
      * @property {Player} currentPlayer
      * @property {Array<Figure>} figures
      * @property {Array<Player>} players
@@ -366,6 +315,7 @@ const CheckersGame = (() => {
             this.field = field
             this.field.classList.add('checkers')
             this.options = options
+            this.players = options.players.map(playerOption => new Player(this, playerOption))
         }
 
         /**
@@ -375,20 +325,19 @@ const CheckersGame = (() => {
         reset() {
             this.field.innerHTML = ''
 
-            this.players = [
-                new Player(this, 0,'Чёрный игрок', this.options.blackBonusCells),
-                new Player(this, 1,'Белый игрок', this.options.whiteBonusCells)
-            ]
-            this.playerSteps = this.options.whiteIsFirst ? 1 : 0
+            this.stepsCount = 0
             this.winners = this.players
-            this.figures = [
-                ...this.options.blackStartPositions.map(
-                    pos => new Figure(this, this.options.blackCheckOption).move(pos.x, pos.y)
-                ),
-                ...this.options.whiteStartPositions.map(
-                    pos => new Figure(this, this.options.whiteCheckOption).move(pos.x, pos.y)
-                )
-            ]
+            this.figures = []
+            for (let player of this.players) {
+                for (let pos of player.startPosition) {
+                    const figure = new Figure(player.baseFigure).move(pos.x, pos.y)
+                    figure.element.addEventListener('click', event => {
+                        this.selectFigure(event.target.figure)
+                    })
+                    this.field.appendChild(figure.element)
+                    this.figures.push(figure)
+                }
+            }
             return this
         }
 
@@ -406,15 +355,24 @@ const CheckersGame = (() => {
          * @return {Checkers}
          */
         nextStep() {
+            this.resetFigures()
+            this.checkWin()
+            const player = this.players[(this.stepsCount + this.options.firstPlayerId) % this.players.length]
+            this.currentPlayer = player
+            setTimeout(() => player.step(), this.options.stepDelay)
+            this.stepsCount++
+            return this
+        }
+
+        /**
+         * @return {Checkers}
+         */
+        resetFigures() {
             this.hideAll()
             for (let figure of this.figures) {
                 figure.canMove = false
                 figure.update()
             }
-            this.checkWin()
-            this.currentPlayer = this.players[this.playerSteps % this.players.length]
-            this.currentPlayer.step()
-            this.playerSteps++
             return this
         }
 
@@ -426,10 +384,7 @@ const CheckersGame = (() => {
          */
         moveFigure(figure, x, y) {
             figure.move(x, y)
-            if (this.currentPlayer.inBonusPosition(figure)) {
-                figure.option = figure.option.bonusOption
-                figure.update()
-            }
+            figure.checkBonusPosition()
             this.nextStep()
             return this
         }
@@ -443,8 +398,106 @@ const CheckersGame = (() => {
          */
         beatFigure(figure, beatFigure, x, y) {
             beatFigure.remove()
-            this.moveFigure(figure, x, y)
+            figure.move(x, y)
+            figure.checkBonusPosition()
+            if (this.findAllPossibleBeats(figure).length) {
+                this.currentPlayer.beatFigure(figure)
+            } else {
+                this.nextStep()
+            }
             return this
+        }
+
+        /**
+         * @param {Figure} figure
+         * @return {Checkers}
+         */
+        selectFigure(figure) {
+            if (figure.canMove) {
+                this.figures.forEach(figure => figure.element.classList.remove('select'))
+                figure.element.classList.add('select')
+                this.hideAll()
+                const moves = [...figure.possibleMoves, ...figure.possibleBeats]
+                for (let move of moves) {
+                    const elem = document.createElement('span')
+
+                    this.field.appendChild(elem)
+                    elem.className = `move x${move.x} y${move.y}${move.beatFigure ? ' beat' : ''}`
+
+                    elem.addEventListener('click', () => {
+                        if (move.beatFigure) {
+                            this.beatFigure(figure, move.beatFigure, move.x, move.y)
+                        } else {
+                            this.moveFigure(figure, move.x, move.y)
+                        }
+                    })
+                }
+            }
+            return this
+        }
+
+        /**
+         * @param {Figure} figure
+         * @return {Array<{x: Number, y: Number}>}
+         */
+        findAllPossibleMoves(figure) {
+            const possibleMoves = []
+
+            for (let move of figure.option.moves) {
+                let x = figure.x
+                let y = figure.y
+
+                for (let step = 0; step < move.maxSteps; step++) {
+                    x += move.moveX
+                    y += move.moveY
+
+                    const nextCell = this.findInCell(x, y)
+                    if (nextCell.type === cellType.empty) {
+                        possibleMoves.push({x, y})
+                    } else {
+                        break
+                    }
+                }
+            }
+
+            figure.possibleMoves = possibleMoves
+
+            return possibleMoves
+        }
+
+        /**
+         * @param {Figure} figure
+         * @return {Array<{x: Number, y: Number, beatFigure: Figure}>}
+         */
+        findAllPossibleBeats(figure) {
+            const possibleBeats = []
+
+            for (let move of figure.option.beats) {
+                let x = figure.x
+                let y = figure.y
+
+                for (let step = 0; step < move.maxSteps; step++) {
+                    x += move.moveX
+                    y += move.moveY
+
+                    const nextCell = this.findInCell(x, y)
+                    if (nextCell.type === cellType.figure && nextCell.option.playerId !== this.currentPlayer.id) {
+                        x += move.moveX
+                        y += move.moveY
+                        const cellAfter = this.findInCell(x, y)
+                        if (cellAfter.type === cellType.empty) {
+                            possibleBeats.push({x, y, beatFigure: nextCell})
+                        }
+                        break
+                    } else if (nextCell.type !== cellType.empty) {
+                        break
+                    }
+                }
+            }
+
+            figure.possibleBeats = possibleBeats
+
+            return possibleBeats
         }
 
         /**
@@ -452,7 +505,9 @@ const CheckersGame = (() => {
          */
         checkWin() {
             this.winners = this.players.filter(
-                player => this.figures.findIndex(figure => player.id === figure.option.playerId) !== -1
+                player => this.figures.findIndex(
+                    figure => figure.isActive && player.id === figure.option.playerId
+                ) !== -1
             )
 
             if (this.winners.length !== this.players.length) {

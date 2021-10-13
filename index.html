@@ -10,7 +10,7 @@
 
     <script src="js/checker.js"></script>
     <script>
-        const game = new CheckersGame(document.getElementById('checkers'))
+        new CheckersGame(document.getElementById('checkers'))
             .reset()
             .start()
             .addEventListener('win_game', e => {
