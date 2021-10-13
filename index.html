@@ -13,8 +13,8 @@
         new CheckersGame(document.getElementById('checkers'))
             .reset()
             .start()
-            .addEventListener('win_game', e => {
-                alert(e.game.winners[0].name + ' выйграл!')
+            .addEventListener('game_win', e => {
+                alert(e.game.winners[0].name + ' победил за ' + e.game.stepsCount + ' хода!')
                 e.game.reset()
             })
     </script>

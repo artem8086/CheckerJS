@@ -356,11 +356,12 @@ const CheckersGame = (() => {
          */
         nextStep() {
             this.resetFigures()
-            this.checkWin()
-            const player = this.players[(this.stepsCount + this.options.firstPlayerId) % this.players.length]
-            this.currentPlayer = player
-            setTimeout(() => player.step(), this.options.stepDelay)
-            this.stepsCount++
+            if (!this.checkWin()) {
+                const player = this.players[(this.stepsCount + this.options.firstPlayerId) % this.players.length]
+                this.currentPlayer = player
+                setTimeout(() => player.step(), this.options.stepDelay)
+                this.stepsCount++
+            }
             return this
         }
 
