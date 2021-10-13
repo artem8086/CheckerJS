@@ -426,11 +426,11 @@ const CheckersGame = (() => {
          */
         moveFigure(figure, x, y) {
             figure.move(x, y)
-            this.nextStep()
             if (this.currentPlayer.inBonusPosition(figure)) {
                 figure.option = figure.option.bonusOption
                 figure.update()
             }
+            this.nextStep()
             return this
         }
 
