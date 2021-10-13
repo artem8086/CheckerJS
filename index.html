@@ -22,8 +22,10 @@
             .reset()
             .start()
             .addEventListener('game_win', e => {
-                alert(e.game.winners[0].name + ' победил за ' + e.game.stepsCount + ' хода!')
-                e.game.reset().start()
+                setTimeout(() => {
+                    alert(e.game.winners[0].name + ' победил за ' + e.game.stepsCount + ' хода!')
+                    e.game.reset().start()
+                }, 400)
             })
     </script>
 </body>
