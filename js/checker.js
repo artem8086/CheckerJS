@@ -42,8 +42,8 @@ const ClassicCheckerOption = {
     whiteIsFirst: true,
     fieldWidth: 10,
     fieldHeight: 10,
-    blackBonusCells: Array(8).fill(0).map((_, i) => ({x: i, y: 9})),
-    whiteBonusCells: Array(8).fill(0).map((_, i) => ({x: i, y: 0})),
+    blackBonusCells: Array(10).fill(0).map((_, i) => ({x: i, y: 9})),
+    whiteBonusCells: Array(10).fill(0).map((_, i) => ({x: i, y: 0})),
     blackStartPositions: [
         ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2 + 1, y: 0})),
         ...Array(5).fill(0).map((_, i) => ({x: i % 5 * 2,     y: 1})),
