@@ -41,6 +41,7 @@
 
 .checkers>.check.select {
     border-color: #ee3333;
+    box-shadow: 0 0 8px 3px #ee3333;
 }
 
 .checkers>.check.king {
