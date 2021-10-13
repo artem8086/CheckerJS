@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Checkers JS</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/checkers.css">
 </head>
 <body>
     <div id="checkers"></div>
 
     <script src="js/checker.js"></script>
     <script>
-        new CheckersGame(document.getElementById('checkers'))
-            .init()
+        const game = new CheckersGame(document.getElementById('checkers'))
+            .reset()
             .start()
+            .addEventListener('win_game', e => {
+                alert(e.game.winners[0].name + ' выйграл!')
+                e.game.reset()
+            })
     </script>
 </body>
 </html>

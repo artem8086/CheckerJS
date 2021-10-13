@@ -1,23 +1,2 @@
-node_modules/
 .idea/
-dump/
-note.txt
 .vscode
-.prettierrc
-*.tmp
-*.pdf
-*.png
-tmp-p/**/*
-dump
-documentation/development/
-documentation/redoc-static.html
-documentation/swagger.yaml
-*.log
-logs/
-*.pcapng
-tools/lum-facebook/**/*.html
-build/
-tools/mongodb/
-#Автосгенерированная страница документации. Генерируется при старте приложения.
-redoc-static.html
-*.xlsx
