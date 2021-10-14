@@ -65,7 +65,7 @@ const ClassicCheckerOption = {
     fieldWidth: 10,
     fieldHeight: 10,
     stepDelay: 100,
-    isBeatNecessarily: false,
+    isBeatNecessarily: true,
     players: [
         {
             id: 0,
@@ -254,11 +254,23 @@ const CheckersGame = (() => {
         step() {
             const figures = this.game.findPlayerFigures(this.id)
 
+            let isCanBeat = false
+
             for (let figure of figures) {
                 this.game.findAllPossibleMoves(figure)
                 this.game.findAllPossibleBeats(figure)
+                isCanBeat = isCanBeat || figure.possibleBeats.length !== 0
                 figure.canMove = figure.possibleMoves.length !== 0 || figure.possibleBeats.length !== 0
                 figure.update()
+            }
+            if (this.game.options.isBeatNecessarily && isCanBeat) {
+                for (let figure of figures) {
+                    figure.possibleMoves = []
+                    if (figure.canMove && figure.possibleBeats.length === 0) {
+                        figure.canMove = false
+                        figure.update()
+                    }
+                }
             }
             return this
         }
