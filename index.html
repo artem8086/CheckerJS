@@ -21,11 +21,13 @@
         new CheckersGame(document.getElementById('checkers'))
             .reset()
             .start()
-            .addEventListener('game_win', e => {
-                setTimeout(() => {
-                    alert(e.game.winners[0].name + ' победил за ' + e.game.stepsCount + ' хода!')
-                    e.game.reset().start()
-                }, 400)
+            .on('game_win', game => {
+                alert(game.winners[0].name + ' победил за ' + game.stepsCount + ' хода!')
+                game.reset().start()
+            })
+            .on('stalemate', game => {
+                alert('Пат за ' + game.stepsCount + ' ходов!')
+                game.reset().start()
             })
     </script>
 </body>

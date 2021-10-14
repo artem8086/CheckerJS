@@ -39,6 +39,7 @@
  * @property {Number} fieldWidth
  * @property {Number} fieldHeight
  * @property {Number} stepDelay
+ * @property {Number} eventDelay
  * @property {boolean} isBeatNecessarily
  * @property {Array<PlayerOption>} players
  */
@@ -65,6 +66,7 @@ const ClassicCheckerOption = {
     fieldWidth: 10,
     fieldHeight: 10,
     stepDelay: 100,
+    eventDelay: 400,
     isBeatNecessarily: true,
     players: [
         {
@@ -134,6 +136,11 @@ const ClassicCheckerOption = {
 const CheckersGame = (() => {
 
     /**
+     * @typedef CheckersEvents
+     * @type {'game_win'|'stalemate'}
+     */
+
+    /**
      * @typedef CellType
      * @type {'FIGURE' | 'EMPTY', 'BLOCK'}
      */
@@ -152,6 +159,7 @@ const CheckersGame = (() => {
     const blockCell = {type: cellType.block}
 
     /**
+     * @class Figure
      * @property {Number} x
      * @property {Number} y
      * @property {boolean} canMove
@@ -227,6 +235,7 @@ const CheckersGame = (() => {
     }
 
     /**
+     * @class Player
      * @property {Checkers} game
      * @property {Number} id
      * @property {String} name
@@ -254,16 +263,21 @@ const CheckersGame = (() => {
         step() {
             const figures = this.game.findPlayerFigures(this.id)
 
+            let isCanMove = false
             let isCanBeat = false
 
             for (let figure of figures) {
                 this.game.findAllPossibleMoves(figure)
                 this.game.findAllPossibleBeats(figure)
+                isCanMove = isCanMove || figure.possibleMoves.length !== 0
                 isCanBeat = isCanBeat || figure.possibleBeats.length !== 0
                 figure.canMove = figure.possibleMoves.length !== 0 || figure.possibleBeats.length !== 0
                 figure.update()
             }
-            if (this.game.options.isBeatNecessarily && isCanBeat) {
+
+            if (!isCanMove && !isCanBeat) {
+                this.game.emit('stalemate')
+            } else if (this.game.options.isBeatNecessarily && isCanBeat) {
                 for (let figure of figures) {
                     figure.possibleMoves = []
                     if (figure.canMove && figure.possibleBeats.length === 0) {
@@ -307,8 +321,10 @@ const CheckersGame = (() => {
     }
 
     /**
+     * @class Checkers
      * @property {CheckersOption} options
      * @property {HTMLElement} field
+     * @property {EventTarget} eventHandler
      * @property {Number} stepsCount
      * @property {Player} currentPlayer
      * @property {Array<Figure>} figures
@@ -316,16 +332,16 @@ const CheckersGame = (() => {
      * @property {Array<Player>} winners
      * @property {Array<HTMLElement>} possibleElements
      */
-    class Checkers extends EventTarget {
+    class Checkers {
 
         /**
          * @param {HTMLElement} field
          * @param {CheckersOption} options
          */
         constructor(field, options = ClassicCheckerOption) {
-            super()
             this.field = field
             this.field.classList.add('checkers')
+            this.eventHandler = new EventTarget()
             this.options = options
             this.players = options.players.map(playerOption => new Player(this, playerOption))
         }
@@ -524,7 +540,7 @@ const CheckersGame = (() => {
             )
 
             if (this.winners.length !== this.players.length) {
-                this.dispatchEvent(new CheckersEvent('game_win', this))
+                this.emit('game_win')
                 return true
             }
             return false
@@ -560,6 +576,32 @@ const CheckersGame = (() => {
          */
         hideAll() {
             this.field.querySelectorAll('.move').forEach(elem => elem.remove())
+            return this
+        }
+
+        /**
+         * @callback CheckerCallback
+         * @param {Checkers} game
+         */
+
+        /**
+         * @param {CheckersEvents} event
+         * @param {CheckerCallback} listener
+         * @return {Checkers}
+         */
+        on(event, listener) {
+            this.eventHandler.addEventListener(event, e => {
+                setTimeout(() => listener(e.game), this.options.eventDelay)
+            })
+            return this
+        }
+
+        /**
+         * @param {CheckersEvents} event
+         * @return {Checkers}
+         */
+        emit(event) {
+            this.eventHandler.dispatchEvent(new CheckersEvent(event, this))
             return this
         }
     }
